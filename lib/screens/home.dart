@@ -3,7 +3,7 @@ import 'translate.dart';
 import 'word_of_day.dart';
 import 'history.dart';
 import '../api/dictionary.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 
 class HomePage extends StatefulWidget {
   @override

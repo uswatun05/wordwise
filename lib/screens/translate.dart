@@ -7,46 +7,139 @@ class TranslatePage extends StatefulWidget {
 }
 
 class _TranslatePageState extends State<TranslatePage> {
-  final _ctrl = TextEditingController();
-  bool _loading = false;
-  String _output = '';
+  final TextEditingController _controller = TextEditingController();
 
-  void _doTranslate() async {
-    if (_ctrl.text.trim().isEmpty) return;
+  String translatedText = '';
+  bool isLoading = false;
+
+  String sourceLang = 'en';
+  String targetLang = 'id';
+  String sourceLabel = 'English';
+  String targetLabel = 'Indonesian';
+
+  void swapLanguages() {
     setState(() {
-      _loading = true;
-      _output = '';
+      final tempLang = sourceLang;
+      final tempLabel = sourceLabel;
+
+      sourceLang = targetLang;
+      targetLang = tempLang;
+
+      sourceLabel = targetLabel;
+      targetLabel = tempLabel;
+
+      translatedText = '';
     });
+  }
+
+  Future<void> handleTranslate() async {
+    if (_controller.text.trim().isEmpty) return;
+
+    setState(() => isLoading = true);
     try {
-      _output = await TranslateService.translate(_ctrl.text.trim());
+      final result = await TranslateService.translate(
+        _controller.text.trim(),
+        sourceLang,
+        targetLang,
+      );
+      setState(() {
+        translatedText = result;
+      });
     } catch (e) {
-      _output = 'Error translate';
+      setState(() {
+        translatedText = '⚠️ Translation failed.';
+      });
+    } finally {
+      setState(() => isLoading = false);
     }
-    setState(() => _loading = false);
   }
 
   @override
-  Widget build(BuildContext ctx) => Scaffold(
-    appBar: AppBar(title: Text('Translate')),
-    body: Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(children: [
-        TextField(
-          controller: _ctrl,
-          decoration: InputDecoration(
-            hintText: 'Masukkan teks Inggris',
-            border: OutlineInputBorder(),
-            suffixIcon: IconButton(icon: Icon(Icons.send), onPressed: _doTranslate),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Color(0xFFD81B60),
+        centerTitle: true,
+        title: Text('Translate', style: TextStyle(color: Colors.white, fontFamily: 'Caprasimo')),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                IconButton(
+                  icon: Icon(Icons.swap_horiz, color: Colors.grey),
+                  onPressed: swapLanguages,
+                ),
+                Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextField(
+                      controller: _controller,
+                      minLines: 3,
+                      maxLines: null,
+                      decoration: InputDecoration(
+                        hintText: 'Enter text...',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+           SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    isLoading
+                        ? CircularProgressIndicator()
+                        : Text(translatedText.isNotEmpty ? translatedText : 'terjemahan'),
+                  ],
+                ),
+              ),
+            ),
           ),
-          onSubmitted: (_) => _doTranslate(),
+            const SizedBox(height: 50),
+
+            ElevatedButton.icon(
+              onPressed: handleTranslate,
+              icon: Icon(Icons.translate),
+              label: Text("Translate"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFD81B60),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
         ),
-        SizedBox(height: 20),
-        _loading
-          ? CircularProgressIndicator()
-          : _output.isNotEmpty
-            ? Text(_output, style: TextStyle(fontSize: 18))
-            : SizedBox(),
-      ]),
-    ),
-  );
+      ),
+    );
+  }
 }

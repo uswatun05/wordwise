@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
     setState(() {
       _isLoading = true;
     });
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(Duration(seconds: 2), () {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),

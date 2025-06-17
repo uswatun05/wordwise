@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'translate.dart';
 import 'word_of_day.dart';
-import 'history.dart';
 import '../api/dictionary.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:ui';
+import 'settings.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,25 +12,49 @@ class HomePage extends StatefulWidget {
 }
 
   class _HomePageState extends State<HomePage> {
-  final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>> _definitions = [];
-  bool _isLoading = false;
+    final TextEditingController _controller = TextEditingController();
+    final FocusNode _focusNode = FocusNode();
+    List<Map<String, dynamic>> _definitions = [];
+    List<String> _history = [];
+    bool _isLoading = false;
+    bool _showHistory = false;
 
-  @override
-  void initState() {
-    super.initState();
+    Future<void> _loadHistory() async {
+      final prefs = await SharedPreferences.getInstance();
+      setState(() {
+        _history = prefs.getStringList('history') ?? [];
+      });
+    }
+    Future<void> _saveHistory() async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('history', _history);
+      print('History saved: $_history');
+    }
+    
+
+    @override
+    void initState() {
+      super.initState();
+      _loadHistory();
+
     _controller.addListener(() {
-      if (_controller.text.trim().isEmpty) {
+      final input = _controller.text.trim().toLowerCase();
         setState(() {
-          _definitions = [];
+          _showHistory = _focusNode.hasFocus && input.isNotEmpty;
         });
-      }
     });
+
+    _focusNode.addListener(() {
+      setState(() {
+        _showHistory = _focusNode.hasFocus && _controller.text.trim().isNotEmpty;
+      });
+    });  
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -49,9 +74,16 @@ class HomePage extends StatefulWidget {
     try {
       List<Map<String, dynamic>> result = 
           await DictionaryService.fetchDefinitions(_controller.text.trim());
+
       setState(() {
         _definitions = result;
+        if (!_history.map((e) => e.toLowerCase()).contains(_controller.text.trim().toLowerCase())) {
+          _history.insert(0, _controller.text.trim());
+          if (_history.length > 8) _history.removeLast();
+          }
       });
+      await _saveHistory();
+
     } catch (e) {
       setState(() {
         _definitions = [
@@ -62,10 +94,11 @@ class HomePage extends StatefulWidget {
           }
         ];
       });
-      
     } finally {
       setState(() {
         _isLoading = false;
+        _focusNode.unfocus();
+        _showHistory = false;
       });
     }
   }
@@ -74,7 +107,7 @@ class HomePage extends StatefulWidget {
     Map<String, List<Map<String, dynamic>>> grouped = {};
 
     for (var def in _definitions) {
-      final pos = def['partOfSpeech'] ?.toLowerCase() ?? 'Other';
+      final pos = def['partOfSpeech']?.toLowerCase() ?? 'other';
       if (!grouped.containsKey(pos)) {
         grouped[pos] = [];
       }
@@ -109,19 +142,17 @@ class HomePage extends StatefulWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-             Center(
-              child: Text(
-                '$emoji ${partOfSpeech != null && partOfSpeech.isNotEmpty 
-                  ? '${partOfSpeech[0].toUpperCase()}${partOfSpeech.substring(1)}' 
-                  : 'Other'}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold, 
-                  fontSize: 20,
-                  fontFamily: 'Poppins',
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
+                  Center(
+                    child: Text(
+                      '$emoji ${partOfSpeech.isNotEmpty ? partOfSpeech[0].toUpperCase() + partOfSpeech.substring(1) : 'Unknown'}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold, 
+                        fontSize: 20,
+                        fontFamily: 'Poppins',
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
               SizedBox(height: 10),
               ...defs.map((d) {
                 return Padding(
@@ -136,7 +167,7 @@ class HomePage extends StatefulWidget {
                       fontWeight: FontWeight.w600,
                      ),
                     ),
-                    if (d['example'] != null)
+                    if (d['example'] != null && d['example'].toString().trim().isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
@@ -171,84 +202,155 @@ class HomePage extends StatefulWidget {
       centerTitle: true,
       backgroundColor: const Color(0xFFD81B60),
       automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.settings, color: Colors.white),
+          onPressed: () {
+            showDialog(
+              context: context,
+              barrierColor: Colors.black.withOpacity(0.3),
+              builder: (context) {
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.4,
+                    child: Material(
+                      color: Colors.white,
+                      elevation: 16,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16),
+                      ),
+                      child: SettingsPage(),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },             
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
+        physics: BouncingScrollPhysics(),
         child: Column(
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: 'search for words....',
-              filled: true,
-              fillColor: Colors.white,
-              suffixIcon: IconButton(
-                  icon: Icon(Icons.send, color: Color(0xFFD81B60)),
-                  onPressed: _searchWord,
-            ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide(color: Color(0xFFD81B60), width:2),
-            ),
-          ),
-            onSubmitted: (_) => _searchWord(),
-          ),
-
-              SizedBox(height: 24),
-            _isLoading
-                ? Center(child: CircularProgressIndicator())
-                : _definitions.isNotEmpty
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Results for: "${_controller.text.trim()}"',
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          buildDefinitionCards(),
-                        ],
-                      )
-                    : SizedBox(),
-
-            SizedBox(height: 40),
-            Divider(thickness: 1.2),
-            SizedBox(height: 10),
-            Center(
-              child: Text(
-                "🔎 Other Menu", 
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Poppins'
-                
+          children: [
+          Column(
+            children: [
+              TextField(
+                focusNode: _focusNode,
+                controller: _controller,
+                onSubmitted: (_) => _searchWord(),
+                decoration: InputDecoration(
+                  hintText: 'search for words....',
+                  filled: true,
+                  fillColor: Colors.white,
+                  suffixIcon: IconButton(
+                      icon: Icon(Icons.send, color: Color(0xFFD81B60)),
+                      onPressed: _searchWord,
+                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide(color: Color(0xFFD81B60), width:2),
                 ),
               ),
             ),
-            SizedBox(height: 12),
 
-            Column(
-              children: [
-                customMenuButton(context, 'Translate', Icons.translate, TranslatePage()),
-                customMenuButton(context, 'Word Of The Day', Icons.calendar_today, WordOfDayPage()),
-                customMenuButton(context, 'History Search', Icons.history, HistoryPage()),
-               ],
+              if (_showHistory && _history.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY:10),
+                    child: Container(
+                      margin: EdgeInsets.only(top: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      constraints: BoxConstraints(maxHeight: 200),
+                    child: ListView(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      children: _history.map((word) {
+                        return ListTile(
+                          title: Text(word),
+                          trailing: IconButton(
+                            icon: Icon(Icons.close, color: Colors.grey),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Hapus History'),
+                                  content: Text('Kamu yakin ingin menghapus "$word" dari riwayat?'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Batal'),
+                                      onPressed: () => Navigator.of(context).pop(false),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () => Navigator.of(context).pop(true),
+                                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                                      child: Text('Hapus'),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                setState(() {
+                                  _history.remove(word);
+                                });
+                                await _saveHistory();
+                              }
+                            },
+                          ),
+                        
+                          onTap: () {
+                            _controller.text = word;
+                            _searchWord();
+                            _focusNode.unfocus();
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 24),
+
+                if (_isLoading)
+                  Center(child: CircularProgressIndicator())
+                else if (_definitions.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Results for: "${_controller.text.trim()}"',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      buildDefinitionCards(),
+                    ],
+                  ),       
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
+          );
+        }
 
   Widget customMenuButton(BuildContext context, String title, IconData icon, Widget page) {
     return Container(
@@ -258,13 +360,14 @@ class HomePage extends StatefulWidget {
         icon: Icon(icon, color: Colors.white),
         label: Text(title,style: TextStyle(color: Colors.white)),
         onPressed: () {
-          Navigator.push(context, 
-          PageRouteBuilder(
-            pageBuilder: (_, __, ___) => page,
-            transitionsBuilder: (_, anim, __, child) {
-              return FadeTransition(opacity: anim, child: child);
-        },
-        transitionDuration: Duration(milliseconds :400),
+          Navigator.push(
+            context, 
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => page,
+              transitionsBuilder: (_, anim, __, child) {
+                return FadeTransition(opacity: anim, child: child);
+          },
+          transitionDuration: Duration(milliseconds :400),
         ),
       );
     },

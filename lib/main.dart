@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/splash.dart';
+import 'screens/main_navigation.dart';
 
 void main() {
   runApp(MyDictionaryApp());

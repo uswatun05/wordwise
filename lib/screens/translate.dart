@@ -61,7 +61,7 @@ class _TranslatePageState extends State<TranslatePage> {
       appBar: AppBar(
         backgroundColor: Color(0xFFD81B60),
         centerTitle: true,
-        title: Text('Translate', style: TextStyle(color: Colors.white, fontFamily: 'Caprasimo')),
+        title: Text('Translate', style: TextStyle(color: Colors.white, fontFamily: 'Caprasimo', fontSize: 24)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -129,8 +129,8 @@ class _TranslatePageState extends State<TranslatePage> {
 
             ElevatedButton.icon(
               onPressed: handleTranslate,
-              icon: Icon(Icons.translate),
-              label: Text("Translate"),
+              icon: Icon(Icons.translate, color: Colors.white),
+              label: Text("Translate", style: TextStyle(fontFamily: 'Poppins',color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFFD81B60),
                 padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),

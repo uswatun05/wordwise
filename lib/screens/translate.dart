@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../api/api_translate.dart';
+import 'package:ionicons/ionicons.dart';
+import 'dart:async';
+
 
 class TranslatePage extends StatefulWidget {
   @override
@@ -8,9 +11,9 @@ class TranslatePage extends StatefulWidget {
 
 class _TranslatePageState extends State<TranslatePage> {
   final TextEditingController _controller = TextEditingController();
+  Timer? _debounce;
 
   String translatedText = '';
-  bool isLoading = false;
 
   String sourceLang = 'en';
   String targetLang = 'id';
@@ -21,13 +24,10 @@ class _TranslatePageState extends State<TranslatePage> {
     setState(() {
       final tempLang = sourceLang;
       final tempLabel = sourceLabel;
-
       sourceLang = targetLang;
       targetLang = tempLang;
-
       sourceLabel = targetLabel;
       targetLabel = tempLabel;
-
       translatedText = '';
     });
   }
@@ -35,7 +35,6 @@ class _TranslatePageState extends State<TranslatePage> {
   Future<void> handleTranslate() async {
     if (_controller.text.trim().isEmpty) return;
 
-    setState(() => isLoading = true);
     try {
       final result = await TranslateService.translate(
         _controller.text.trim(),
@@ -49,9 +48,7 @@ class _TranslatePageState extends State<TranslatePage> {
       setState(() {
         translatedText = '⚠️ Translation failed.';
       });
-    } finally {
-      setState(() => isLoading = false);
-    }
+    } 
   }
 
   @override
@@ -61,21 +58,29 @@ class _TranslatePageState extends State<TranslatePage> {
       appBar: AppBar(
         backgroundColor: Color(0xFFD81B60),
         centerTitle: true,
-        title: Text('Translate', style: TextStyle(color: Colors.white, fontFamily: 'Caprasimo', fontSize: 24)),
+        automaticallyImplyLeading: false,
+        title: Text('Translate', style: TextStyle(color: Colors.white, fontFamily: 'Caprasimo', fontSize: 24,
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'RobotoSlab', fontSize: 16,
+                ),
+              ),
                 IconButton(
                   icon: Icon(Icons.swap_horiz, color: Colors.grey),
                   onPressed: swapLanguages,
                 ),
-                Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'RobotoSlab', fontSize: 16,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -88,15 +93,26 @@ class _TranslatePageState extends State<TranslatePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text(sourceLabel, style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'RobotoSlab', fontSize: 14,
+                    ),
+                  ),
                     TextField(
                       controller: _controller,
                       minLines: 3,
                       maxLines: null,
+                      cursorColor: Colors.pink,
+                      style: TextStyle(fontFamily: 'RobotoSlab'),
                       decoration: InputDecoration(
                         hintText: 'Enter text...',
+                        hintStyle: TextStyle(fontFamily: 'RobotoSlab'),
                         border: InputBorder.none,
                       ),
+                      onChanged: (text) {
+                        if (_debounce?.isActive ?? false) _debounce!.cancel();
+                        _debounce = Timer(const Duration(milliseconds: 100), () {
+                          handleTranslate();
+                        });
+                      },
                     ),
                   ],
                 ),
@@ -113,28 +129,28 @@ class _TranslatePageState extends State<TranslatePage> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    isLoading
-                        ? CircularProgressIndicator()
-                        : Text(translatedText.isNotEmpty ? translatedText : 'terjemahan'),
-                  ],
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'RobotoSlab', fontSize: 14,
+                      ),
+                    ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                              child: SingleChildScrollView(
+                          child: Text(
+                            translatedText.isNotEmpty
+                              ? translatedText
+                              : 'Translation will appear here....',
+                            style: TextStyle(
+                              fontFamily: 'RobotoSlab', 
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-            const SizedBox(height: 50),
-
-            ElevatedButton.icon(
-              onPressed: handleTranslate,
-              icon: Icon(Icons.translate, color: Colors.white),
-              label: Text("Translate", style: TextStyle(fontFamily: 'Poppins',color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFD81B60),
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],

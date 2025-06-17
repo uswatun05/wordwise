@@ -5,6 +5,7 @@ import '../api/dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui';
 import 'settings.dart';
+import 'word_of_day.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -144,11 +145,11 @@ class HomePage extends StatefulWidget {
                 children: [
                   Center(
                     child: Text(
-                      '$emoji ${partOfSpeech.isNotEmpty ? partOfSpeech[0].toUpperCase() + partOfSpeech.substring(1) : 'Unknown'}',
+                      '${partOfSpeech.isNotEmpty ? partOfSpeech[0].toUpperCase() + partOfSpeech.substring(1) : 'Unknown'}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold, 
-                        fontSize: 20,
-                        fontFamily: 'Poppins',
+                        fontSize: 25,
+                        fontFamily: 'Pacifico',
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -165,6 +166,7 @@ class HomePage extends StatefulWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'RobotoSlab'
                      ),
                     ),
                     if (d['example'] != null && d['example'].toString().trim().isNotEmpty)
@@ -172,7 +174,7 @@ class HomePage extends StatefulWidget {
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
                           '💬 "${d['example']}"',
-                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey[700]),
+                          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey[700],fontFamily: 'RobotoSlab'),
                         ),
                       ),
                     ],
@@ -243,7 +245,8 @@ class HomePage extends StatefulWidget {
                 controller: _controller,
                 onSubmitted: (_) => _searchWord(),
                 decoration: InputDecoration(
-                  hintText: 'search for words....',
+                  hintText:'search for words....',
+                  hintStyle: TextStyle(fontFamily:'RobotoSlab',fontSize:15,color: Colors.grey,),
                   filled: true,
                   fillColor: Colors.white,
                   suffixIcon: IconButton(
@@ -281,7 +284,7 @@ class HomePage extends StatefulWidget {
                       shrinkWrap: true,
                       children: _history.map((word) {
                         return ListTile(
-                          title: Text(word),
+                          title: Text(word, style: TextStyle(fontFamily: 'RobotoSlab')),
                           trailing: IconButton(
                             icon: Icon(Icons.close, color: Colors.grey),
                             onPressed: () async {
@@ -326,6 +329,9 @@ class HomePage extends StatefulWidget {
               ),
             ],
           ),
+          if (_controller.text.isEmpty && !_isLoading)
+          WordOfDayWidget(),
+          
           SizedBox(height: 24),
 
                 if (_isLoading)

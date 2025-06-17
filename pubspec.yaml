@@ -64,6 +64,12 @@ flutter:
     - family: Poppins
       fonts:
         - asset: lib/assets/Poppins-Bold.ttf
+    - family: Pacifico
+      fonts:
+        - asset: lib/assets/Pacifico-Regular.ttf
+    - family: RobotoSlab
+      fonts:
+        - asset: lib/assets/RobotoSlab-VariableFont_wght.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

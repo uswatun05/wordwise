@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../api/api_translate.dart';
-import 'package:ionicons/ionicons.dart';
 import 'dart:async';
-
+import 'package:provider/provider.dart';
+import '../theme_provider.dart';
 
 class TranslatePage extends StatefulWidget {
   @override
@@ -54,7 +54,7 @@ class _TranslatePageState extends State<TranslatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Color(0xFFD81B60),
         centerTitle: true,
@@ -75,7 +75,7 @@ class _TranslatePageState extends State<TranslatePage> {
                 ),
               ),
                 IconButton(
-                  icon: Icon(Icons.swap_horiz, color: Colors.grey),
+                  icon: Icon(Icons.swap_horiz, color: Theme.of(context).iconTheme.color),
                   onPressed: swapLanguages,
                 ),
                 Text(targetLabel, style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'RobotoSlab', fontSize: 16,
@@ -104,7 +104,7 @@ class _TranslatePageState extends State<TranslatePage> {
                       style: TextStyle(fontFamily: 'RobotoSlab'),
                       decoration: InputDecoration(
                         hintText: 'Enter text...',
-                        hintStyle: TextStyle(fontFamily: 'RobotoSlab'),
+                        hintStyle: TextStyle(fontFamily: 'RobotoSlab', color: Theme.of(context).hintColor),
                         border: InputBorder.none,
                       ),
                       onChanged: (text) {
@@ -144,6 +144,7 @@ class _TranslatePageState extends State<TranslatePage> {
                             style: TextStyle(
                               fontFamily: 'RobotoSlab', 
                               fontSize: 14,
+                              color: Theme.of(context).textTheme.bodyLarge!.color,
                             ),
                           ),
                         ),

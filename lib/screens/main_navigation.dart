@@ -31,6 +31,8 @@ class _MainNavigationState extends State<MainNavigation> {
                 currentIndex: _selectedIndex,
                 selectedItemColor: Color(0xFFD81B60),
                 unselectedItemColor: Colors.grey,
+                selectedLabelStyle: TextStyle(fontFamily: 'RobotoSlab', fontWeight: FontWeight.bold),
+                unselectedLabelStyle: TextStyle(fontFamily: 'RobotoSlab'),
                 onTap: _onItemTapped,
                 items: [
                     BottomNavigationBarItem(

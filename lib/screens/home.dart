@@ -5,7 +5,6 @@ import '../api/dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui';
 import 'settings.dart';
-import 'word_of_day.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -78,8 +77,9 @@ class HomePage extends StatefulWidget {
 
       setState(() {
         _definitions = result;
-        if (!_history.map((e) => e.toLowerCase()).contains(_controller.text.trim().toLowerCase())) {
-          _history.insert(0, _controller.text.trim());
+        final word = _controller.text.trim();
+        if (!_history.any((item) => item.toLowerCase() == word.toLowerCase())) {
+          _history.insert(0, word);
           if (_history.length > 8) _history.removeLast();
           }
       });
@@ -192,7 +192,7 @@ class HomePage extends StatefulWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           'WordWise',
@@ -248,7 +248,9 @@ class HomePage extends StatefulWidget {
                   hintText:'search for words....',
                   hintStyle: TextStyle(fontFamily:'RobotoSlab',fontSize:15,color: Colors.grey,),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[850]
+                    : Colors.white,
                   suffixIcon: IconButton(
                       icon: Icon(Icons.send, color: Color(0xFFD81B60)),
                       onPressed: _searchWord,
@@ -274,15 +276,17 @@ class HomePage extends StatefulWidget {
                     child: Container(
                       margin: EdgeInsets.only(top: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Theme.of(context).cardColor.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.white.withOpacity(0.2)),
                       ),
                       constraints: BoxConstraints(maxHeight: 200),
-                    child: ListView(
+                    child: ListView.builder(
                       physics: NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      children: _history.map((word) {
+                      itemCount: _history.length,
+                      itemBuilder: (context, index) {
+                        final word = _history[index];
                         return ListTile(
                           title: Text(word, style: TextStyle(fontFamily: 'RobotoSlab')),
                           trailing: IconButton(
@@ -309,7 +313,7 @@ class HomePage extends StatefulWidget {
 
                               if (confirm == true) {
                                 setState(() {
-                                  _history.remove(word);
+                                  _history.removeAt(index);
                                 });
                                 await _saveHistory();
                               }
@@ -320,15 +324,13 @@ class HomePage extends StatefulWidget {
                             _controller.text = word;
                             _searchWord();
                             _focusNode.unfocus();
-                          },
-                        );
-                      }).toList(),
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
           if (_controller.text.isEmpty && !_isLoading)
           WordOfDayWidget(),
           
@@ -345,11 +347,13 @@ class HomePage extends StatefulWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       SizedBox(height: 10),
                       buildDefinitionCards(),
+                        ],
+                      ),
                     ],
                   ),       
                 ],

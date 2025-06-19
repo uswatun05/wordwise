@@ -109,8 +109,13 @@ class HomePage extends StatefulWidget {
 
     for (var def in _definitions) {
       final pos = def['partOfSpeech']?.toLowerCase() ?? 'other';
+<<<<<<< Updated upstream
       if (!grouped.containsKey(pos)) {
         grouped[pos] = [];
+=======
+        grouped[pos] = grouped[pos] ?? [];
+        grouped[pos]!.add(def);
+>>>>>>> Stashed changes
       }
       grouped[pos]!.add(def);
     }
@@ -189,13 +194,13 @@ class HomePage extends StatefulWidget {
   );
 }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: Text(
-          'WordWise',
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    appBar: AppBar(
+      title: Text(
+        'WordWise',
         style: TextStyle(
           color: Colors.white,
           fontSize: 24,
@@ -224,15 +229,76 @@ class HomePage extends StatefulWidget {
                         bottomLeft: Radius.circular(16),
                       ),
                       child: SettingsPage(),
-                      ),
                     ),
-                  );
-                },
-              );
-            },             
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    ),
+    body: SingleChildScrollView(
+      padding: EdgeInsets.all(20),
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          TextField(
+            focusNode: _focusNode,
+            controller: _controller,
+            onSubmitted: (_) => _searchWord(),
+            decoration: InputDecoration(
+              hintText: 'search for words....',
+              hintStyle: TextStyle(
+                fontFamily: 'RobotoSlab',
+                fontSize: 15,
+                color: Colors.grey,
+              ),
+              filled: true,
+              fillColor: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.grey[850]
+                  : Colors.white,
+              suffixIcon: IconButton(
+                icon: Icon(Icons.send, color: Color(0xFFD81B60)),
+                onPressed: _searchWord,
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Color(0xFFD81B60), width: 2),
+              ),
+            ),
           ),
+          SizedBox(height: 24),
+          if (_controller.text.isEmpty && !_isLoading) WordOfDayWidget(),
+          if (_isLoading)
+            Center(child: CircularProgressIndicator())
+          else if (_definitions.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Results for: "${_controller.text.trim()}"',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
+                SizedBox(height: 10),
+                buildDefinitionCards(),
+              ],
+            ),
         ],
       ),
+<<<<<<< Updated upstream
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         physics: BouncingScrollPhysics(),
@@ -389,5 +455,11 @@ class HomePage extends StatefulWidget {
         ),
       ),
     );
+=======
+    ),
+  );
+}
+>>>>>>> Stashed changes
   }
-}       
+
+  

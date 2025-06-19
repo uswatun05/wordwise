@@ -1,29 +1,14 @@
 import 'package:flutter/material.dart';
 import '../api/wod.dart';
+import 'package:intl/intl.dart';
 
 class WordOfDayWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<String, String>>(
-      future: WordOfDayService.fetchWordOfDay(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text('Failed to load word of teh day',
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.error,
-                fontFamily: 'RobotoSlab',
-              ),
-              textAlign: TextAlign.center,
-            ),
-          );
-        } else if (snapshot.hasData) {
-          final word = snapshot.data!['word']!;
-          final definition = snapshot.data!['definition']!;
+    final wordData = WordOfDayService.getWordOfDay();
+    final word = wordData['word']!;
+    final definition = wordData['definition']!;
+
           return Container(
             padding: EdgeInsets.all(16),
             margin: EdgeInsets.only(top: 16),
@@ -35,7 +20,7 @@ class WordOfDayWidget extends StatelessWidget {
               child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text('📅 Word of the Day', 
+                Text('📅 Word of the Day - ${DateFormat('d MMMM y').format(DateTime.now())}', 
                 style: TextStyle(
                   fontSize: 16, 
                   fontWeight: FontWeight.bold, 
@@ -66,10 +51,5 @@ class WordOfDayWidget extends StatelessWidget {
               ],
             ),
           );
-        } else {
-          return SizedBox.shrink(); 
         }
-      },
-    );
-  }
-}
+      }

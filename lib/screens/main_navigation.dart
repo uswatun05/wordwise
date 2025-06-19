@@ -27,24 +27,43 @@ class _MainNavigationState extends State<MainNavigation> {
     Widget build(BuildContext context) {
         return Scaffold(
             body: _pages[_selectedIndex],
-            bottomNavigationBar: BottomNavigationBar(
-                currentIndex: _selectedIndex,
-                selectedItemColor: Color(0xFFD81B60),
-                unselectedItemColor: Colors.grey,
-                selectedLabelStyle: TextStyle(fontFamily: 'RobotoSlab', fontWeight: FontWeight.bold),
-                unselectedLabelStyle: TextStyle(fontFamily: 'RobotoSlab'),
-                onTap: _onItemTapped,
-                items: [
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        label: 'Home',
+            bottomNavigationBar: Container(
+                margin: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.7),
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: Offset(0, 1),
+                        ),
+                    ],
+                ),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.only(),
+                    child: BottomNavigationBar(
+                        type: BottomNavigationBarType.fixed,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,        
+                        currentIndex: _selectedIndex,
+                        showSelectedLabels: false,
+                        showUnselectedLabels: false,
+                        selectedItemColor: Color(0xFFD81B60),
+                        unselectedItemColor: Colors.grey[500],
+                        onTap: _onItemTapped,
+                        items: [
+                            BottomNavigationBarItem(
+                                icon: Icon(Icons.home_rounded, size: 24),
+                                label: '',
+                            ),
+                            BottomNavigationBarItem(
+                                icon: Icon(Icons.translate_rounded, size: 24),
+                                label: '',
+                            ),
+                                ],
+                            ),
+                        ),
                     ),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.language),
-                        label: 'Translate',
-                    ),
-                ],
-            ),
-        );
-    }
-}
+                );
+            }
+        }

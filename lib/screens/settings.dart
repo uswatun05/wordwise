@@ -65,15 +65,77 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
               ListTile(
-                leading: Icon(Icons.info),
-                title: Text('About', style: TextStyle(fontFamily: 'Poppins',fontSize: 12),
+                contentPadding: EdgeInsets.zero,
+                title: Row(
+                  children: [
+                    Icon(Icons.info, size:20),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'About',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
                 onTap: () {
-                  showAboutDialog(
+                  showDialog(
                     context: context,
-                    applicationName: 'WordWise',
-                    applicationVersion: '1.0.0',
-                    applicationLegalese: '© 2025 Uus',
+                    builder: (context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: Theme.of(context).cardColor,
+                        title: Text(
+                          'About WordWise',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            color: Color(0xFFD81B60),
+                          ),
+                        ),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '📱 WordWise v1.0.0',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              '✨ A simple, elegant dictionary app for everyday use.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Divider(),
+                            Text(
+                              '© 2025 Uus\nAll rights reserved.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            child: Text('Close', style: TextStyle(color: Color(0xFFD81B60),fontFamily: 'Poppins')),
+                            onPressed: () => Navigator.pop(context),
+                        ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),

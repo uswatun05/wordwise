@@ -30,7 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
             bottomNavigationBar: Container(
                 margin: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Theme.of(context).cardColor.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                         BoxShadow(
@@ -53,12 +53,12 @@ class _MainNavigationState extends State<MainNavigation> {
                         onTap: _onItemTapped,
                         items: [
                             BottomNavigationBarItem(
-                                icon: Icon(Icons.home_rounded, size: 24),
-                                label: '',
+                                icon: Icon(Icons.home_rounded, size: 30),
+                                label: 'Home',
                             ),
                             BottomNavigationBarItem(
-                                icon: Icon(Icons.translate_rounded, size: 24),
-                                label: '',
+                                icon: Icon(Icons.translate_rounded, size: 30),
+                                label: 'Translate',
                             ),
                                 ],
                             ),

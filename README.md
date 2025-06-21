@@ -1,16 +1,23 @@
-# wordwise
+# 📚WordWise-Simple and elegant digital dictionary application
 
-A new Flutter project.
+Sebuah aplikasi kamus digital yang dirancang untuk memudahkan pengguna dalam menerjemahkan kata, memperkaya kosakata, dan mempelajari arti kata secara praktis dan efisien setiap hari.
 
-## Getting Started
+## ✨ Fitur
+- 📖 **Kamus Interaktif**: Menampilkan arti kata dalam Bahasa Inggris lengkap dengan berbagai definisi, part of speech, dan contoh kalimat.
+- 📚 **Penerjemah Bahasa Inggris-Indonesia**: Terjemahan kata secara cepat menggunakan API LibreTranslate
+- 🌐 **Dukungan Bilingual**: Pilihan bahasa sumber dan target (Indonesia ↔ Inggris)
+- 📅 **Word of The Day**: Menampilkan kutipan motivasi berbeda setiap hari
+- 🕘 **Riwayat Terjemahan**: Menyimpan riwayat kata yang telah dicari
+  - ❌ **Hapus Riwayat**: Menghapus satu riwayat dengan satu tombol dan pesan konfirmasi delete
+- 🎨 **Tampilan Estetik**: Desain UI modern, bersih, dan ramah pengguna
+- 🌙 **Mode Gelap**: Tema gelap dan terang yang bisa disesuaikan tergantung kenyamanan pengguna
 
-This project is a starting point for a Flutter application.
+## 🧰 Tumpukan Teknologi
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Flutter**: Untuk membangun aplikasi mobile lintas platform
+- **LibreTranslate API**: Untuk fitur kamus & terjemahan
+- **Provider**: Untuk pengelolaan state (mode tema, dll)
+- **Google Fonts**: Font custom seperti Poppins, Pacifico, RobotoSlab & Caprasimo
+- **Shared Preferences**: Untuk menyimpan preferensi pengguna (seperti dark mode)
+## 📸Poster WordWise
+![Tampilan Aplikasi WordWise](https://github.com/uswatun05/wordwise/blob/part-1/WordWise.png?raw=true)
